@@ -1,0 +1,35 @@
+#!usr/bin/python
+#coding=utf-8
+
+import requests
+import re
+
+
+
+def ip_china(ip_address):
+    r=requests.get('http://ip.chinaz.com/?IP='+ip_address)
+    source = r.content.replace(r'\n','').replace('\t','').replace(' ','').replace('\r','')
+    print 'ipchinaz查询结果:'
+    for info in re.findall(r'\d+\.\d+\.\d+\.\d+=[^<]+',source):
+        try:
+            print '物理地址:' + re.findall(r'\d+\.\d+\.\d+\.\d+',info)[0]
+            print '数字地址:' + re.findall(r'\d{4,}',info)[0]
+            print '地理位置:' + re.findall(r'==>>[\W]+',info)[0].replace('==>>','')
+        except:
+            pass
+
+
+def ip_138(ip_address):
+    r=requests.get('http://www.ip138.com/ips138.asp?ip='+ip_address+'&action=2')
+    source = r.content.decode('gb2312').encode('utf-8')
+    print '------'
+    print 'ip138查询结果:'
+    print '地理位置:' + re.findall(r'>>(.*)</font></h1></td>',source)[0].replace(r'</font></h1></td>','\n')
+    print re.findall(r'<li>(.*)</li>',source)[0].replace(r"<li>",'').replace(r'</li>','\n')
+    print '-------'
+if __name__ == '__main__':
+    ip_add=raw_input("Please input the IP address or domain:")
+    ip_138(ip_add)
+    ip_china(ip_add)
+
+
