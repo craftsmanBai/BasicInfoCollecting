@@ -1,0 +1,64 @@
+#!usr/bin/python
+#coding=utf-8
+import re
+import time
+import requests
+import threading
+
+def requestUrl(region):
+    r=requests.get('http://www.xici.net.co/'+region)
+    source = r.content.replace('\n','').replace('\t','').replace(' ','').replace('\r','')
+    gatherProxy(source,region)
+    for i in range(2,5):
+        r=requests.get('http://www.xici.net.co/'+region+str(i))
+        source = r.content.replace('\n','').replace('\t','').replace(' ','').replace('\r','')
+        gatherProxy(source,region)
+
+
+
+def gatherProxy(source,region):
+    if region=='wn'or region=='wt':
+        for proxy in re.findall(r'\d+\.\d+\.\d+.\d+<\/td><td>\d+<\/td><td>[^i]+',source):
+            try:
+                print "IP&Port\t" + re.findall(r'\d+\.\d+\.\d+.\d+<\/td><td>\d+',proxy)[0].replace('</td><td>',':')
+                print "协议:\t"+re.findall(r'HTTP[S]?',proxy)[0]
+                print "地址:\t" +re.findall(r'<td>[\W]+</td>',proxy)[0].replace('</td>','').replace('<td>','')
+            except:
+                pass
+
+
+    elif region=='nn' or 'nt':
+        for proxy in re.findall(r'\d+\.\d+\.\d+.\d+<\/td><td>\d+<\/td><td><[^d][^i][^v]+',source):
+            try:
+                print "IP&Port\t" + re.findall(r'\d+\.\d+\.\d+.\d+<\/td><td>\d+',proxy)[0].replace('</td><td>',':')
+
+                print "地址:\t" + re.findall(r'">.{1,15}',proxy)[0].replace('</a>','').replace(r'</td>','').replace(r'>','').replace(r'"','').replace(r'</a','').replace(r'</','').replace(r'/a','')
+                print "协议:\t"+re.findall(r'HTTP[S]?',proxy)[0]
+            except:
+                pass
+
+
+
+
+
+def init():
+    print '#################################################'
+    print' ____  ____  ____ ___  ____  _   ____  ____ ___  _'
+    print'/  __\/  __\/  _ \\  \//\  \//  /  _ \/  _ \\  \//'
+    print'|  \/||  \/|| / \| \  /  \  /  | | //| / \| \  / '
+    print'|  __/|    /| \_/| /  \  / /   | |_\\| \_/| /  \ '
+    print'\_/   \_/\_\\____//__/\\/_/     \____/\____//__/\\'
+    print '#################################################\n'
+
+
+
+
+if __name__ == '__main__':
+    init()
+    while True:
+        print '\n代理类型:'
+        print 'nn:国内高匿代理\nnt:国内普通代理\nwn:国外高匿代理:\nwt:国外普通代理\nqq:qq代理\n'
+        region=raw_input('\n请输入代理类型:\n')
+        requestUrl(region)
+        print '=============================================='
+    exit(0)
